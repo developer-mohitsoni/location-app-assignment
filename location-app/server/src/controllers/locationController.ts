@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../db/db.config.js";
+import multer from "multer";
+import AdmZip from "adm-zip";
 
 export class LocationController{
   static async createLocation(req: Request, res: Response) {
@@ -38,6 +40,59 @@ export class LocationController{
       return res.status(200).json(locations);
     } catch (error) {
       res.status(500).json({ error: "Failed to retrieve location" });
+    }
+  }
+
+  static async uploadLocation(req: Request, res: Response) {
+    try {
+      if(!req.file) return res.status(400).json({ message: 'No file uploaded' });
+
+      const zip = new AdmZip(req.file.buffer)
+
+      const entries = zip.getEntries();
+
+      const textEntries = entries.filter((e)=> !e.isDirectory && e.entryName.toLowerCase().endsWith('.txt'));
+
+      const nonText = entries.filter((e)=> !e.isDirectory && !e.entryName.toLowerCase().endsWith('.txt'));
+
+      if(textEntries.length !== 1 || nonText.length > 0){
+        return res.status(400).json({ message: 'ZIP must contain exactly one .txt file and nothing else' });
+      }
+
+      const content = textEntries[0].getData().toString('utf-8');
+    const lines = content.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+
+    // Expect first line to be header: Name, Latitude, Longitude — tolerate flexible spacing
+    const startIndex = lines[0].toLowerCase().includes('name') ? 1 : 0;
+
+    const locationsToCreate: { name: string; latitude: number; longitude: number }[] = [];
+
+    for (let i = startIndex; i < lines.length; i++) {
+      const line = lines[i];
+      const parts = line.split(',').map((p) => p.trim());
+      if (parts.length !== 3) {
+        return res.status(400).json({ message: `Invalid line format at row ${i + 1}: "${line}"` });
+      }
+      const [name, latStr, lonStr] = parts;
+      const latitude = Number(latStr);
+      const longitude = Number(lonStr);
+      if (!name || Number.isNaN(latitude) || Number.isNaN(longitude)) {
+        return res.status(400).json({ message: `Invalid values at row ${i + 1}` });
+      }
+      locationsToCreate.push({ name, latitude, longitude });
+    }
+
+    const userId = req.user!.id;
+    const created = await prisma.$transaction(
+      locationsToCreate.map((loc) =>
+        prisma.location.create({ data: { ...loc, userId } })
+      )
+    );
+
+    return res.json({ added: created.length, locations: created });
+    } catch (error) {
+      console.error(error);
+      return res.status(400).json({ message: 'Invalid ZIP or text format' });
     }
   }
 }

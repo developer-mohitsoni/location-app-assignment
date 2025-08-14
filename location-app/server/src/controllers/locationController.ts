@@ -2,12 +2,20 @@ import { Request, Response } from "express";
 import prisma from "../db/db.config.js";
 import multer from "multer";
 import AdmZip from "adm-zip";
+import { Location } from "../types/index.js";
 
 export class LocationController{
   static async createLocation(req: Request, res: Response) {
     try {
       const userId = req.user?.id;
-      const { name, latitude, longitude } = req.body;
+      const { name, latitude, longitude } = req.body as Location;
+
+      if (!name || latitude === undefined || longitude === undefined){
+        return res.status(400).json({ 
+          message: 'name, latitude, longitude required' 
+        });
+      }
+
       const location = await prisma.location.create({
         data: {
           name,
@@ -16,7 +24,7 @@ export class LocationController{
           userId: Number(userId),
         },
       });
-      res.status(201).json(location);
+      res.status(201).json({loc: location});
     } catch (error) {
       res.status(500).json({ error: "Failed to create location" });
     }

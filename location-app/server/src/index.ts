@@ -16,11 +16,15 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/health", (req: Request, res: Response) => {
 	res.json({
-		message: "Hello It's Working..."
+		ok: true
 	});
 });
+
+import authRouter from "./routes/auth.routes.js"
+
+app.use("/auth", authRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

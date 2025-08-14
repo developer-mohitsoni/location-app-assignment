@@ -3,7 +3,8 @@ import prisma from "../db/db.config.js";
 import bcrypt from "bcrypt";
 import { ZodError } from "zod";
 import { ZodCustomErrorReporter } from "../validation/CustomErrorReporter.js";
-import { registerSchema } from "../validation/authValidation.js";
+import { loginSchema, registerSchema } from "../validation/authValidation.js";
+import jwt from "jsonwebtoken"
 
 export class AuthController{
   static async register(req:Request, res:Response): Promise<Response> {
@@ -51,6 +52,48 @@ export class AuthController{
 				status: 500,
 				message: "Something went wrong... Please try again"
 			});
+    }
+  }
+
+  static async login(req:Request, res:Response): Promise<Response> {
+    try{
+
+      const {email, password} = req.body;
+  
+      const payload = await loginSchema.parseAsync({email, password});
+  
+      const user = await prisma.user.findUnique({
+        where: {
+          email: payload.email
+        }
+      });
+  
+      if (!user) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+  
+      const isValidPassword = await bcrypt.compare(payload.password, user.password);
+  
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+  
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: "1h" });
+  
+      return res.status(200).json({ message: "Login successful", token: `Bearer ${token}` });
+      
+    }catch(error){
+      if (error instanceof ZodError) {
+        const reporter = new ZodCustomErrorReporter(error);
+
+        return res.status(422).json({
+          errors: reporter.createError()
+        });
+      }
+      return res.status(500).json({
+        status: 500,
+        message: "Something went wrong... Please try again"
+      });
     }
   }
 }

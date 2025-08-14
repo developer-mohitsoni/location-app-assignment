@@ -19,4 +19,25 @@ export class LocationController{
       res.status(500).json({ error: "Failed to create location" });
     }
   }
+
+  static async getLocations(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id;
+
+      const locations = await prisma.location.findMany({
+        where: {
+          userId: Number(userId),
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      });
+      if (!locations) {
+        return res.status(404).json({ error: "Location not found" });
+      }
+      return res.status(200).json(locations);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to retrieve location" });
+    }
+  }
 }

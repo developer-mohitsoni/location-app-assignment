@@ -6,7 +6,7 @@ import MapView from "@/components/MapView";
 type LocationDTO = { id?: number; name: string; latitude: number; longitude: number };
 
 type MapContentProps = {
-  locations: LocationDTO[];                            // REQUIRED (Option 1)
+  locations: LocationDTO[];
   onAdd: (loc: { name: string; latitude: number; longitude: number }) => Promise<void> | void;
 };
 

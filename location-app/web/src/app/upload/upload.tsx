@@ -19,7 +19,6 @@ export default function UploadPage() {
     const fd = new FormData();
     fd.append("file", file);
     try {
-      // Replace this with your actual method of retrieving the token, e.g. from localStorage or context
       const token = localStorage.getItem("token") || "";
       const res = await api.post("/locations/upload", fd, { headers: { 
         "Content-Type": "multipart/form-data",

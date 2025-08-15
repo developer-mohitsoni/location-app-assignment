@@ -19,7 +19,7 @@ export default function Protected({ children }: { children: React.ReactNode }) {
   }, [isAuthed, loading, router]);
 
   if (loading) {
-    return <div>Loading...</div>; // or a loading spinner
+    return <div>Loading...</div>;
   }
 
   if (!isAuthed) {

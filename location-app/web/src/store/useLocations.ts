@@ -14,8 +14,7 @@ interface State {
 export const useLocations = create<State>((set) => ({
   locations: [],
   setLocations: async () => {
-    // Replace this with your actual token retrieval logic
-    const token = localStorage.getItem("token") || ""; // e.g., from localStorage, context, or a function
+    const token = localStorage.getItem("token") || "";
     const res = await api.get('/locations', {
       headers: {
         Authorization: `${token}`

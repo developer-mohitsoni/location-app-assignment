@@ -18,7 +18,6 @@ export default function MapPage() {
       const res = await fetch(`${API}/locations`, {
         headers: {
           "Content-Type": "application/json",
-          // Make sure your backend expects Bearer:
           Authorization: `${token}`
         },
       });
@@ -48,7 +47,6 @@ export default function MapPage() {
     fetchLocations();
   }, [fetchLocations]);
 
-  // Called by child after successful POST
   const handleAdd = async (payload: { name: string; latitude: number; longitude: number }) => {
     try {
       const token = localStorage.getItem("token");
@@ -63,15 +61,13 @@ export default function MapPage() {
       if (!res.ok) throw new Error("Create failed");
 
       const result = await res.json();
-      const loc = result.location || result; // your server returns { location: ... }
+      const loc = result.location || result;
       const formatted: LocationDTO = {
         name: loc.name,
         latitude: Number(loc.latitude),
         longitude: Number(loc.longitude),
         id: loc.id,
       };
-
-      // instant UI update (no refresh)
       setLocations((prev) => [...prev, formatted]);
     } catch (e) {
       console.error(e);
@@ -81,12 +77,10 @@ export default function MapPage() {
   return (
     <Protected>
       <div className="flex h-screen overflow-hidden">
-        {/* Sidebar left, fixed width */}
         <aside className="w-64 shrink-0 border-r bg-white">
           <Sidebar />
         </aside>
 
-        {/* Map area fills the rest */}
         <main className="relative flex-1">
           <MapContent locations={locations} onAdd={handleAdd} />
         </main>

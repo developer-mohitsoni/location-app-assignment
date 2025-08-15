@@ -70,7 +70,6 @@ export class LocationController{
       const content = textEntries[0].getData().toString('utf-8');
     const lines = content.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 
-    // Expect first line to be header: Name, Latitude, Longitude — tolerate flexible spacing
     const startIndex = lines[0].toLowerCase().includes('name') ? 1 : 0;
 
     const locationsToCreate: { name: string; latitude: number; longitude: number }[] = [];

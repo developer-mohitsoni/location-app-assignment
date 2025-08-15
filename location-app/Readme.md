@@ -80,3 +80,25 @@ This application allows users to upload location data, view it on a map, and man
 -   `npm run build`: Builds the application for production.
 -   `npm run start`: Starts the production server.
 -   `npm run lint`: Lints the codebase.
+
+## Usage
+
+1.  **Prepare the location data:**
+    Create a `.txt` file with location data in the following format:
+    ```
+    Name,Latitude,Longitude
+    ```
+    Each line should represent a different location. For example:
+    ```
+    New York,40.7128,-74.0060
+    London,51.5074,-0.1278
+    Tokyo,35.6895,139.6917
+    ```
+
+2.  **Create a ZIP file:**
+    Compress the `.txt` file into a ZIP archive named `location.zip`. The ZIP file must contain only this single `.txt` file.
+
+3.  **Upload the file:**
+    -   Navigate to the upload page in the web application.
+    -   Select the `location.zip` file and click "Upload".
+    -   The application will process the file and display the locations on the map.

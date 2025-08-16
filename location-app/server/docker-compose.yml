@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: locationdb
+    ports:
+      - '5433:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/locationdb?schema=public
+      JWT_SECRET: dev-secret
+      PORT: 8000
+      CLIENT_ORIGIN: http://localhost:3000
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+volumes:
+  pgdata:

@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: locationdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - location-app-network
+
+  server:
+    build:
+      context: ./server
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/locationdb?schema=public
+      JWT_SECRET: dev-secret
+      PORT: 8000
+      CLIENT_URL: http://localhost:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - location-app-network
+
+  web:
+    build:
+      context: ./web
+      args:
+        NEXT_PUBLIC_API_BASE: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    networks:
+      - location-app-network
+
+volumes:
+  pgdata:
+
+networks:
+  location-app-network:
+    driver: bridge

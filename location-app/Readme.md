@@ -4,65 +4,27 @@ This application allows users to upload location data, view it on a map, and man
 
 ## Prerequisites
 
-- Node.js (v18 or higher)
-- npm
-- A running PostgreSQL database instance
+- Docker
+- Docker Compose
 
-## Setup Instructions
+## Running with Docker
 
-### Server
+To run the application using Docker, follow these steps:
 
-1.  **Navigate to the server directory:**
+1.  **Build and start the services:**
     ```bash
-    cd server
+    docker-compose up --build
     ```
+    This command will build the Docker images for the server and web client and start all the services defined in the `docker-compose.yml` file.
 
-2.  **Install dependencies:**
+2.  **Apply database migrations:**
+    Open a new terminal and run the following command to apply the database migrations:
     ```bash
-    npm install
+    docker-compose exec server npm run prisma:migrate
     ```
 
-3.  **Set up environment variables:**
-    Create a `.env` file in the `server` directory by copying the `.env.example` file:
-    ```bash
-    cp .env.example .env
-    ```
-    Update the `.env` file with your database connection string and a JWT secret:
-    ```
-    DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
-    JWT_SECRET="your-secret-key"
-    PORT=8000
-    CLIENT_URL=http://localhost:3000
-    ```
-
-4.  **Apply database migrations:**
-    ```bash
-    npm run prisma:migrate
-    ```
-
-5.  **Start the development server:**
-    ```bash
-    npm run dev
-    ```
-    The server will be running at `http://localhost:8000`.
-
-### Web Client
-
-1.  **Navigate to the web directory:**
-    ```bash
-    cd web
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-
-3.  **Start the development server:**
-    ```bash
-    npm run dev
-    ```
-    The web client will be running at `http://localhost:3000`.
+The application will be available at `http://localhost:3000`.
+The server will be running at `http://localhost:8000`.
 
 ## Available Scripts
 
